@@ -29,3 +29,11 @@ java -jar build/libs/comsysto-monitoring-app.war
 ```
 
 OR deploy the war file to a running Tomcat
+
+## Description
+
+The App does HTTP Requests to some URLs and displays the Status Code
+
+![](./doc/monitoring.jpg)
+
+See `HomeController.java` for config.

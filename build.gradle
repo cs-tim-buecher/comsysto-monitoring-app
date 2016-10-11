@@ -11,6 +11,8 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
+apply plugin: 'war'
+
 
 jar {
     baseName = 'comsysto-monitoring'
@@ -33,5 +35,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
     testCompile("junit:junit")
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
 }
 

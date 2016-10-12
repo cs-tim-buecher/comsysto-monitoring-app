@@ -3,20 +3,29 @@ package hello;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.params.ClientPNames;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.hibernate.validator.internal.util.privilegedactions.GetMethod;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @Controller
 public class HomeController {
 
-    private CloseableHttpClient httpclient = HttpClients.createDefault();
+    private CloseableHttpClient httpclient = HttpClientBuilder.create()
+            .disableRedirectHandling()
+            .build();
 
     private Integer doGetRequest(String url) {
         Integer statusCode = -1;
@@ -35,12 +44,38 @@ public class HomeController {
 
     @RequestMapping("/")
     public String index(Model model) {
-        HashMap<String, Integer> urlsAndStatusCodes = new HashMap<>();
+        List<HttpCheckPojo> checks = new ArrayList<>();
+        List<HttpCheckPojo> redirectChecks = new ArrayList<>();
 
-        urlsAndStatusCodes.put("comsysto.com HTTP", doGetRequest("http://comsysto.com"));
-        urlsAndStatusCodes.put("comsysto.com HTTPS", doGetRequest("https://comsysto.com"));
-        urlsAndStatusCodes.put("blog.comsysto.com = old", doGetRequest("https://blog.comsysto.com"));
-        model.addAttribute("urlsAndStatusCodes", urlsAndStatusCodes);
+        //
+        // NORMAL CHECKS
+        //
+        checks.add(new HttpCheckPojo("comsysto homepage", "https://comsysto.com", "GET", 200));
+        checks.add(new HttpCheckPojo("comsysto test 404", "https://comsysto.com/ffoooooo", "GET", 404));
+
+        //
+        // REDIRECT CHECKS
+        //
+        redirectChecks.add(new HttpCheckPojo("comsysto homepage without ssl", "http://comsysto.com", "GET", 301, "https://comsysto.com", 200));
+
+        //
+        // EXECUTE CHECKS
+        //
+        for (HttpCheckPojo singleCheck : checks) {
+            // FIXME: Currently only GET works
+            singleCheck.setActualHttpStatusCode(doGetRequest(singleCheck.getUrl()));
+        }
+        for (HttpCheckPojo singleCheck : redirectChecks) {
+            // FIXME: Currently only GET works
+            singleCheck.setActualHttpStatusCode(doGetRequest(singleCheck.getUrl()));
+            if (singleCheck.getRedirect()) {
+                // FIXME: Actually get Location header from first request and check if URLs match
+                singleCheck.setRedirectToUrlActualStatusCode(doGetRequest(singleCheck.getRedirectToUrl()));
+            }
+        }
+
+        model.addAttribute("checks", checks);
+        model.addAttribute("redirectChecks", redirectChecks);
         return "homepage";
     }
     

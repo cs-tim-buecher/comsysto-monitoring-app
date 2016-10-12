@@ -10,33 +10,81 @@
 </head>
 <body>
 
-<div class="container">
+<div class="container-fluid">
 <h1>Monitoring Status</h1>
 
+
+<div th:fragment="statusCode (_statusCode)">
+    <span th:if="${_statusCode == 200}" class="tag tag-success" th:text="${_statusCode}"></span>
+    <span th:if="${_statusCode == 302 or _statusCode == 301}" class="tag tag-info" th:text="${_statusCode}"></span>
+    <span th:if="${_statusCode != 302 and _statusCode != 301 and _statusCode != 200}" class="tag tag-danger" th:text="${_statusCode}"></span>
+</div>
+
+<p>&nbsp;</p>
+
+<h2>Normal Checks</h2>
 <table class="table">
     <thead>
     <tr>
-        <th>Site</th>
-        <th>StatusCode</th>
+        <th>Name</th>
+        <th>HTTP Request Method</th>
+        <th>Url</th>
+        <th>Expected HTTP Status Code</th>
+        <th>Actual HTTP Status Code</th>
     </tr>
     </thead>
     <tbody>
-        <tr th:each="urlAndStatusCode: ${urlsAndStatusCodes}">
-            <td th:text="${urlAndStatusCode.key}"></td>
-
-            <td th:if="${urlAndStatusCode.value == 200}" >
-                <span class="tag tag-success" th:text="${urlAndStatusCode.value}"></span>
+        <tr th:each="check: ${checks}">
+            <td th:text="${check.name}"></td>
+            <td th:text="${check.requestMethod}"></td>
+            <td th:text="${check.url}"></td>
+            <td>
+                <div th:replace="::statusCode (${check.expectedStatusCode})">...</div>
             </td>
-
-            <td th:if="${urlAndStatusCode.value == 302 or urlAndStatusCode.value == 301}" >
-                <span class="tag tag-info" th:text="${urlAndStatusCode.value}"></span>
+            <td>
+                <div th:replace="::statusCode (${check.actualHttpStatusCode})">...</div>
             </td>
-
-            <td th:if="${urlAndStatusCode.value != 302 and urlAndStatusCode.value != 301 and urlAndStatusCode.value != 200}" >
-                <span class="tag tag-danger" th:text="${urlAndStatusCode.value}"></span>
-            </td>
-
         </tr>
+    </tbody>
+</table>
+
+<p>&nbsp;</p>
+
+<h2>Redirect Checks</h2>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>HTTP Request Method</th>
+        <th>Url</th>
+        <th>Expected HTTP Status Code</th>
+        <th>Actual HTTP Status Code</th>
+        <th>RedirectUrl</th>
+        <th>Redirect Expected HTTP Status Code</th>
+        <th>Redirect Actual HTTP Status Code</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="check: ${redirectChecks}">
+        <td th:text="${check.name}"></td>
+        <td th:text="${check.requestMethod}"></td>
+        <td th:text="${check.url}"></td>
+        <td>
+            <div th:replace="::statusCode (${check.expectedStatusCode})">...</div>
+        </td>
+        <td>
+            <div th:replace="::statusCode (${check.actualHttpStatusCode})">...</div>
+        </td>
+
+        <td th:text="${check.redirectToUrl}"></td>
+        <td>
+            <div th:replace="::statusCode (${check.redirectToUrlExpectedStatusCode})">...</div>
+        </td>
+        <td>
+            <div th:replace="::statusCode (${check.redirectToUrlActualStatusCode})">...</div>
+        </td>
+
+    </tr>
     </tbody>
 </table>
 </div>

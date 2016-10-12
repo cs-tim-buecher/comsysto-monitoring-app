@@ -51,12 +51,14 @@ public class HomeController {
         // NORMAL CHECKS
         //
         checks.add(new HttpCheckPojo("comsysto homepage", "https://comsysto.com", "GET", 200));
+        checks.add(new HttpCheckPojo("comsysto blog new", "https://comsysto.com/blog", "GET", 200));
         checks.add(new HttpCheckPojo("comsysto test 404", "https://comsysto.com/ffoooooo", "GET", 404));
 
         //
         // REDIRECT CHECKS
         //
         redirectChecks.add(new HttpCheckPojo("comsysto homepage without ssl", "http://comsysto.com", "GET", 301, "https://comsysto.com", 200));
+        redirectChecks.add(new HttpCheckPojo("comsysto blog old url ssl", "https://blog.comsysto.com", "GET", 301, "https://comsysto.com/blog", 200));
 
         //
         // EXECUTE CHECKS

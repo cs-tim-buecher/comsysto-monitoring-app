@@ -37,3 +37,4 @@ The App does HTTP Requests to some URLs and displays the Status Code
 ![](./doc/monitoring.jpg)
 
 See `HomeController.java` for config.
+
